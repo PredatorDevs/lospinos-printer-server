@@ -108,7 +108,7 @@ controller.printTicketKitchen = async (req, res) => {
 
         for (const ip of ips) {
           const { id, name, ip: printerIP, port: printerPORT, products } = ubicationsProducts[ubicationId][ip];
-          const printer = new escpos.Printer(networkDevices[ip], { encoding: "GB18030", width: 56 });
+          const printer = new escpos.Printer(networkDevices[ip], { encoding: "857", width: 56 });
 
           printer
             .font('A')
@@ -177,7 +177,7 @@ controller.printTicketPreAccount = (req, res) => {
     //const networkDevice = new escpos.Network('192.168.1.100', 9100);
     const networkDevice = new escpos.Network('192.168.0.5', 9105);
 
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(networkDevice, options);
 
     networkDevice.open(function (error) {
@@ -245,7 +245,7 @@ controller.printPackOff = (req, res) => {
     const { orderDetails, clientInfo, orderInfo, ticketName, date, time } = ticketBody;
     const networkDevice = new escpos.Network('192.168.1.100', 9100);
 
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(networkDevice, options);
 
     networkDevice.open(function (error) {
@@ -331,7 +331,7 @@ controller.testNetworkPrinterConnection = (req, res) => {
     // const networkDevice = new escpos.Network('127.0.0.1', 9105);
     const networkDevice = new escpos.Network('192.168.1.100', 9100);
 
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(networkDevice, options);
 
     const remoteAddress = req.headers['x-real-ip'] || req.connection.remoteAddress;
@@ -372,7 +372,7 @@ controller.testPrinterConnection = (req, res) => {
     const device  = new escpos.USB(vId, pId);
     // const device = new escpos.Network('127.0.0.1', 9105);
 
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     device.open(function (error) {
@@ -393,7 +393,7 @@ controller.testPrinterConnection = (req, res) => {
 controller.testCashdrawerOpenAction = (req, res) => {
   try {
     const device = new escpos.USB(vId, pId);
-    const options = { encoding: "GB18030", width: 48 /* default */ }
+    const options = { encoding: "857", width: 48 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     device.open(function(error){
@@ -444,7 +444,7 @@ controller.printTestPage = (req, res) => {
   try {
     const device  = new escpos.USB(vId, pId);
     // const device = new escpos.Network('127.0.0.1', 9105);
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     const remoteAddress = req.headers['x-real-ip'] || req.connection.remoteAddress;
@@ -479,7 +479,7 @@ controller.printTestPage = (req, res) => {
 controller.printCCF = (req, res) => {
   try {
     const device = new escpos.USB(matrix_vId, matrix_pId);
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     // invoiceHeaderData = { customerFullname, documentDatetime, customerAddress, customerState, customerNit, customerNRC, customerBusinessType, taxableSale, totalTaxes, totalSale, totalToLetters }
@@ -643,7 +643,7 @@ controller.printCFTicket = (req, res) => {
   try {
     // const device  = new escpos.USB(vId, pId);
     const device = new escpos.Network('127.0.0.1', 9105);
-    const options = { encoding: "GB18030", width: 48 /* default */ }
+    const options = { encoding: "857", width: 48 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     // invoiceHeaderData = { customerFullname, documentDatetime, customerAddress, customerDui, customerNit, customerPhone, totalSale, totalToLetters }
@@ -757,7 +757,7 @@ controller.printInternalSaleTicket = (req, res) => {
   try {
     // const device  = new escpos.USB(vId, pId);
     const device = new escpos.Network('127.0.0.1', 9105);
-    const options = { encoding: "GB18030", width: 48 /* default */ }
+    const options = { encoding: "857", width: 48 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     // invoiceHeaderData = { customerFullname, documentDatetime, customerAddress, customerDui, customerNit, customerPhone, totalSale, totalToLetters }
@@ -891,7 +891,7 @@ controller.printDteVoucher = (req, res) => {
     }
     // const device  = new escpos.USB(vId, pId);
     // const device = new escpos.Network('127.0.0.1', 9105);
-    const options = { encoding: "GB18030", width: 48 /* default */ }
+    const options = { encoding: "857", width: 48 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     // invoiceHeaderData = { customerFullname, documentDatetime, customerAddress, customerDui, customerNit, customerPhone, totalSale, totalToLetters }
@@ -1265,7 +1265,7 @@ controller.printDteVoucher = (req, res) => {
 controller.printCF = (req, res) => {
   try {
     const device = new escpos.USB(matrix_vId, matrix_pId);
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     // invoiceHeaderData = { customerFullname, documentDatetime, customerAddress, customerDui, customerNit, customerPhone, totalSale, totalToLetters }
@@ -1384,7 +1384,7 @@ controller.printGuideLines = (req, res) => {
   try {
     // const device  = new escpos.USB(vId, pId);
     const device = new escpos.Network('127.0.0.1', 9105);
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     // invoiceHeaderData = { customerFullname, documentDatetime, customerAddress, customerDui, customerNit, customerPhone, totalSale, totalToLetters }
@@ -1472,7 +1472,7 @@ controller.printCharLine = (req, res) => {
   try {
     // const device  = new escpos.USB(vId, pId);
     const device = new escpos.Network('127.0.0.1', 9105);
-    const options = { encoding: "GB18030", width: 56 /* default */ }
+    const options = { encoding: "857", width: 56 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     // invoiceHeaderData = { customerFullname, documentDatetime, customerAddress, customerDui, customerNit, customerPhone, totalSale, totalToLetters }
