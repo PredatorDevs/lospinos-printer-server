@@ -18,8 +18,8 @@ escpos.Network = require('escpos-network');
 
 const controller = {};
 
-const vId = "8137";
-const pId = "8214";
+const vId = "1208";
+const pId = "3624";
 
 const matrix_vId = "1203";
 const matrix_pId = "17717";
