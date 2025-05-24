@@ -27,9 +27,8 @@ const matrix_pId = "17717";
 controller.printDteVoucherIntoLocalServer = async (req, res) => {
   try {
     const { invoiceHeaderData, invoiceBodyData } = req.body;
-    console.log(invoiceHeaderData, invoiceBodyData);
 
-    let response = await axios.post('http://192.168.0.8:5005/api/printer/dtevoucher', { invoiceHeaderData, invoiceBodyData });
+    let response = await axios.post('http://192.168.31.156:5005/api/printer/dtevoucher', { invoiceHeaderData, invoiceBodyData });
 
    // await fetch('http://192.168.0.8:5005/api/printer/dtevoucher', req.body);
     // await fetch('http://192.168.0.8:5005/api/printer/dtevoucher', {
@@ -891,7 +890,7 @@ controller.printDteVoucher = (req, res) => {
     }
     // const device  = new escpos.USB(vId, pId);
     // const device = new escpos.Network('127.0.0.1', 9105);
-    const options = { encoding: "857", width: 48 /* default */ }
+    const options = { encoding: "857", width: 64 /* default */ }
     const printer = new escpos.Printer(device, options);
 
     // invoiceHeaderData = { customerFullname, documentDatetime, customerAddress, customerDui, customerNit, customerPhone, totalSale, totalToLetters }
@@ -1004,7 +1003,7 @@ controller.printDteVoucher = (req, res) => {
       .size(0, 0)
       .text(ownerTradename || '')
       .text(locationAddress || '')
-      .text(locationPhone || '')
+      .text(`TEL: ${locationPhone}` || '')
       // .text('*** TICKET DE CONTROL INTERNO ***')
       // .text(`NIT: ${'0000-000000-000-0'} - NRC: ${'00000-0'}`)
       .feed(1)
@@ -1017,29 +1016,38 @@ controller.printDteVoucher = (req, res) => {
         { text: `DOC: ${documentTypeName}`, align: "LEFT", width: 0.50 },
         { text: `SUC: ${String(locationName).toUpperCase()}`, align: "RIGHT", width: 0.50 }
       ])
-      .text(`FECHA: ${dayjs(docDatetime).format('YYYY-MM-DD hh:mm:ss')}`)
+      .text(`FECHA: ${dayjs(docDatetime).format('YYYY-MM-DD HH:mm:ss')}`)
+      .text(`VENDEDOR: ${userPINCodeFullName || createdByFullname || ''}`)
       .text(`CLIENTE: ${customerFullname}`)
-      .text(`DUI: ${customerDui || '-'}`)
-      .text(`NIT: ${customerNit || '-'}`)
-      .text(`NRC: ${customerNrc || '-'}`)
-      // .qrimage('https://github.com/song940/node-escpos', function(err){
+      if (customerDui) {
+        printer.text(`DUI: ${customerDui || '-'}`)
+      }
+      if (customerNit) {
+        printer.text(`NIT: ${customerNit || '-'}`)
+      }
+      if (customerNrc) {
+        printer.text(`NRC: ${customerNrc || '-'}`)
+      }
+      // .text(`DUI: ${customerDui || '-'}`)
+      // .text(`NIT: ${customerNit || '-'}`)
+      // .text(`NRC: ${customerNrc || '-'}`)
+      // // .qrimage('https://github.com/song940/node-escpos', function(err){
 
       // })
-      .feed(1) // LINE 9
-      .align('CT')
+      printer.feed(1) // LINE 9
+      .align('LT')
       // .text('------------------------------------------------')
       // .tableCustom([
       //   { text: `DESCRIPCION`, align: "LEFT", width: 1 }
       // ])
       // .style('U')
-      .tableCustom([
-        // { text: `CANT.`, align: "LEFT", width: 0.15 },
-        { text: `DESCRIPCION`, align: "LEFT", width: 0.55 },
-        // { text: `PRES.`, align: "LEFT", width: 0.25 },
-        { text: ``, align: "RIGHT", width: 0.25 },
-        { text: `SUBTOTAL`, align: "RIGHT", width: 0.20 }
+      .style('U').tableCustom([
+        { text: `DESCRIPCION`, align: "LEFT", width: 0.50 },
+        { text: `P. UNI.`, align: "RIGHT", width: 0.24 },
+        { text: `TOTAL`, align: "RIGHT", width: 0.23 }
       ])
-      .text('------------------------------------------------')
+      // .style('U').text('                              ')
+      .style('NORMAL')
       // .feed(1)
       for (let i = 0; i < invoiceBodyData.length; i++) {
         const {
@@ -1079,26 +1087,35 @@ controller.printDteVoucher = (req, res) => {
         // printer.tableCustom([
         //   { text: `${invoiceBodyData[i].productName || ""}`, align: "LEFT", width: 1 }
         // ])
-        printer.style('U').tableCustom([
+        printer.tableCustom([
           // { text: `${Number(invoiceBodyData[i].quantity).toFixed(0) || 0}`, align: "LEFT", width: 0.15 },
-          { text: `${productName || ""}`, align: "LEFT", width: 0.99 },
+          { text: `${Number(quantity).toFixed(2) || 0} ${productName || ""}`, align: "LEFT", width: 0.50 },
+          { text: `${(+unitPrice - (+unitPriceFovial + +unitPriceCotrans + (isNoTaxableOperation ? +unitPriceIva : 0))).toFixed(2) || 0}`, align: "RIGHT", width: 0.24 },
+          { text: `${(isNoTaxableOperation === 1 ? (+noTaxableSubTotal - +ivaTaxAmount - +fovialTaxAmount - +cotransTaxAmount) : (+taxableSubTotal - ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount) - +fovialTaxAmount - +cotransTaxAmount)).toFixed(2) || 0}`, align: "RIGHT", width: 0.23 }
           // { text: `${"UNID"} x`, align: "LEFT", width: 0.25 },
           // { text: `${Number(quantity).toFixed(4) || 0} x ${(+unitPrice - (+unitPriceFovial + +unitPriceCotrans + (isNoTaxableOperation ? +unitPriceIva : 0))).toFixed(4) || 0}`, align: "RIGHT", width: 0.25 },
           // { text: `${(isNoTaxableOperation === 1 ? (+noTaxableSubTotal - +ivaTaxAmount - +fovialTaxAmount - +cotransTaxAmount) : (+taxableSubTotal - ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount) - +fovialTaxAmount - +cotransTaxAmount)).toFixed(4) || 0}`, align: "RIGHT", width: 0.20 }
         ]);
 
-        printer.style('U').tableCustom([
-          // { text: `${Number(invoiceBodyData[i].quantity).toFixed(0) || 0}`, align: "LEFT", width: 0.15 },
-          // { text: `${"UNID"} x`, align: "LEFT", width: 0.25 },
-          { text: `${Number(quantity).toFixed(4) || 0} x $${(+unitPrice - (+unitPriceFovial + +unitPriceCotrans + (isNoTaxableOperation ? +unitPriceIva : 0))).toFixed(4) || 0}`, align: "LEFT", width: 0.50 },
-          { text: `${(isNoTaxableOperation === 1 ? (+noTaxableSubTotal - +ivaTaxAmount - +fovialTaxAmount - +cotransTaxAmount) : (+taxableSubTotal - ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount) - +fovialTaxAmount - +cotransTaxAmount)).toFixed(4) || 0}`, align: "RIGHT", width: 0.50 }
-        ]);
+        // printer.style('U').tableCustom([
+        //   // { text: `${Number(invoiceBodyData[i].quantity).toFixed(0) || 0}`, align: "LEFT", width: 0.15 },
+        //   // { text: `${"UNID"} x`, align: "LEFT", width: 0.25 },
+        //   { text: `${Number(quantity).toFixed(4) || 0} x $${(+unitPrice - (+unitPriceFovial + +unitPriceCotrans + (isNoTaxableOperation ? +unitPriceIva : 0))).toFixed(4) || 0}`, align: "LEFT", width: 0.50 },
+        //   { text: `${(isNoTaxableOperation === 1 ? (+noTaxableSubTotal - +ivaTaxAmount - +fovialTaxAmount - +cotransTaxAmount) : (+taxableSubTotal - ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount) - +fovialTaxAmount - +cotransTaxAmount)).toFixed(4) || 0}`, align: "RIGHT", width: 0.50 }
+        // ]);
 
         if((i + 1) < invoiceBodyData.length) printer.feed(1);
       } // LINE 15
-      printer.style('NORMAL')
+      printer.style('U').tableCustom([
+        // { text: `CANT.`, align: "LEFT", width: 0.15 },
+        { text: ``, align: "LEFT", width: 0.50 },
+        // { text: `PRES.`, align: "LEFT", width: 0.25 },
+        { text: ``, align: "RIGHT", width: 0.24 },
+        { text: ``, align: "RIGHT", width: 0.23 }
+      ])
+      .style('NORMAL')
       // .feed(1)
-      .text('------------------------------------------------')
+      // .style('U').text('                              ').style('NORMAL')
       // .text('------------------------------------------')
       .tableCustom([
         { text: `GRAVADO`, align: "RIGHT", width: 0.75 },
@@ -1112,12 +1129,12 @@ controller.printDteVoucher = (req, res) => {
         // { text: ``, align: "RIGHT", width: 0.25 },
         { text: `${(isNoTaxableOperation ? taxableSubTotalWithoutTaxes : 0).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
       ])
-      .tableCustom([
-        { text: `SUMA TOTAL DE OPERACIONES`, align: "RIGHT", width: 0.75 },
-        // { text: ``, align: "LEFT", width: 0.25 },
-        // { text: ``, align: "RIGHT", width: 0.25 },
-        { text: `${(isNoTaxableOperation ? taxableSubTotalWithoutTaxes : taxableSubTotal - ((+fovialTaxAmount + +cotransTaxAmount + ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount)))).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      ]);
+      // .tableCustom([
+      //   { text: `SUMA TOTAL DE OPERACIONES`, align: "RIGHT", width: 0.75 },
+      //   // { text: ``, align: "LEFT", width: 0.25 },
+      //   // { text: ``, align: "RIGHT", width: 0.25 },
+      //   { text: `${(isNoTaxableOperation ? taxableSubTotalWithoutTaxes : taxableSubTotal - ((+fovialTaxAmount + +cotransTaxAmount + ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount)))).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+      // ]);
       if (!(documentTypeId === 1 || documentTypeId === 2)) {
         printer.tableCustom([
           { text: `IVA`, align: "RIGHT", width: 0.75 },
@@ -1131,19 +1148,23 @@ controller.printDteVoucher = (req, res) => {
         // { text: ``, align: "LEFT", width: 0.25 },
         // { text: ``, align: "RIGHT", width: 0.25 },
         { text: `${(isNoTaxableOperation ? taxableSubTotalWithoutTaxes : taxableSubTotal - ((+fovialTaxAmount + +cotransTaxAmount))).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      ])
-      .tableCustom([
-        { text: `IVA PERCIBIDO (1%)`, align: "RIGHT", width: 0.75 },
-        // { text: ``, align: "LEFT", width: 0.25 },
-        // { text: ``, align: "RIGHT", width: 0.25 },
-        { text: `${Number(IVAperception).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      ])
-      .tableCustom([
-        { text: `IVA RETENIDO (1%)`, align: "RIGHT", width: 0.75 },
-        // { text: ``, align: "LEFT", width: 0.25 },
-        // { text: ``, align: "RIGHT", width: 0.25 },
-        { text: `${Number(IVAretention).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
       ]);
+      if (+IVAperception !== null && +IVAperception > 0) {
+        printer.tableCustom([
+          { text: `IVA PERCIBIDO (1%)`, align: "RIGHT", width: 0.75 },
+          // { text: ``, align: "LEFT", width: 0.25 },
+          // { text: ``, align: "RIGHT", width: 0.25 },
+          { text: `${Number(IVAperception).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+        ]);
+      }
+      if (+IVAretention !== null && +IVAretention > 0) {
+        printer.tableCustom([
+          { text: `IVA RETENIDO (1%)`, align: "RIGHT", width: 0.75 },
+          // { text: ``, align: "LEFT", width: 0.25 },
+          // { text: ``, align: "RIGHT", width: 0.25 },
+          { text: `${Number(IVAretention).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+        ]);
+      }
       if (+fovialTaxAmount !== null && +fovialTaxAmount > 0) {
         printer.tableCustom([
           { text: `FOVIAL ($0.20/gal)`, align: "RIGHT", width: 0.75 },
@@ -1160,25 +1181,27 @@ controller.printDteVoucher = (req, res) => {
           { text: `${Number(cotransTaxAmount).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
         ]);
       }
+      // if (+cotransTaxAmount !== null && +cotransTaxAmount > 0) {
+      //   printer.tableCustom([
+      //     { text: `RETE. RENTA`, align: "RIGHT", width: 0.75 },
+      //     // { text: ``, align: "LEFT", width: 0.25 },
+      //     // { text: ``, align: "RIGHT", width: 0.25 },
+      //     { text: `${Number(0).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+      //   ])
+      // }
+      // printer.tableCustom([
+      //   { text: `MONTO TOTAL OPERACION`, align: "RIGHT", width: 0.75 },
+      //   // { text: ``, align: "LEFT", width: 0.25 },
+      //   // { text: ``, align: "RIGHT", width: 0.25 },
+      //   { text: `${Number(+total - (isNoTaxableOperation ? +ivaTaxAmount : 0) - +IVAretention + +IVAperception).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+      // ])
+      // .tableCustom([
+      //   { text: `OTROS MONTOS NO AFECTOS`, align: "RIGHT", width: 0.75 },
+      //   // { text: ``, align: "LEFT", width: 0.25 },
+      //   // { text: ``, align: "RIGHT", width: 0.25 },
+      //   { text: `${Number(0).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+      // ])
       printer.tableCustom([
-        { text: `RETE. RENTA`, align: "RIGHT", width: 0.75 },
-        // { text: ``, align: "LEFT", width: 0.25 },
-        // { text: ``, align: "RIGHT", width: 0.25 },
-        { text: `${Number(0).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      ])
-      .tableCustom([
-        { text: `MONTO TOTAL OPERACION`, align: "RIGHT", width: 0.75 },
-        // { text: ``, align: "LEFT", width: 0.25 },
-        // { text: ``, align: "RIGHT", width: 0.25 },
-        { text: `${Number(+total - (isNoTaxableOperation ? +ivaTaxAmount : 0) - +IVAretention + +IVAperception).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      ])
-      .tableCustom([
-        { text: `OTROS MONTOS NO AFECTOS`, align: "RIGHT", width: 0.75 },
-        // { text: ``, align: "LEFT", width: 0.25 },
-        // { text: ``, align: "RIGHT", width: 0.25 },
-        { text: `${Number(0).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      ])
-      .tableCustom([
         { text: `TOTAL A PAGAR`, align: "RIGHT", width: 0.75 },
         // { text: ``, align: "LEFT", width: 0.25 },
         // { text: ``, align: "RIGHT", width: 0.25 },
@@ -1192,13 +1215,28 @@ controller.printDteVoucher = (req, res) => {
       // ])
       .align('CT')
       .feed(1)
-      .text(`CODIGO DE GENERACION:`)
-      .text(`${generationCode}`)
-      .text(`NUMERO DE CONTROL:`)
-      .text(`${controlNumber}`)
-      .text(`SELLO RECEPCION`)
-      .text(`${receptionStamp}`)
+      .text(`NOTAS:`)
+      .text(`${notes || ''}`)
       .feed(1)
+      // .text(`CODIGO DE GENERACION:`)
+      // .text(`${generationCode}`)
+      // .text(`NUMERO DE CONTROL:`)
+      // .text(`${controlNumber}`)
+      // .text(`SELLO RECEPCION`)
+      // .text(`${receptionStamp}`)
+      .tableCustom([
+        { text: `CODIGO DE GENERACION:`, align: "LEFT", width: 0.40 },
+        { text: `${String(generationCode).toUpperCase()}`, align: "RIGHT", width: 0.60 }
+      ])
+      .tableCustom([
+        { text: `NUMERO DE CONTROL:`, align: "LEFT", width: 0.40 },
+        { text: `${String(controlNumber).toUpperCase()}`, align: "RIGHT", width: 0.60 }
+      ])
+      .tableCustom([
+        { text: `SELLO RECEPCION:`, align: "LEFT", width: 0.35 },
+        { text: `${String(receptionStamp).toUpperCase()}`, align: "RIGHT", width: 0.65 }
+      ])
+      // .feed(1)
       .tableCustom([
         { text: `ESTADO:`, align: "LEFT", width: 0.50 },
         { text: `${dteTransmitionStatusName}`, align: "RIGHT", width: 0.50 }
