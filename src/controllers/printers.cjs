@@ -1042,9 +1042,10 @@ controller.printDteVoucher = (req, res) => {
       // ])
       // .style('U')
       .style('U').tableCustom([
-        { text: `DESCRIPCION`, align: "LEFT", width: 0.50 },
-        { text: `P. UNI.`, align: "RIGHT", width: 0.24 },
-        { text: `TOTAL`, align: "RIGHT", width: 0.23 }
+        { text: `CANT.`, align: "LEFT", width: 0.17 },
+        { text: `DESCRIPCION`, align: "LEFT", width: 0.40 },
+        { text: `P. UNI.`, align: "RIGHT", width: 0.20 },
+        { text: `TOTAL`, align: "RIGHT", width: 0.20 }
       ])
       // .style('U').text('                              ')
       .style('NORMAL')
@@ -1089,9 +1090,10 @@ controller.printDteVoucher = (req, res) => {
         // ])
         printer.tableCustom([
           // { text: `${Number(invoiceBodyData[i].quantity).toFixed(0) || 0}`, align: "LEFT", width: 0.15 },
-          { text: `${Number(quantity).toFixed(2) || 0} ${productName || ""}`, align: "LEFT", width: 0.50 },
-          { text: `${(+unitPrice - (+unitPriceFovial + +unitPriceCotrans + (isNoTaxableOperation ? +unitPriceIva : 0))).toFixed(2) || 0}`, align: "RIGHT", width: 0.24 },
-          { text: `${(isNoTaxableOperation === 1 ? (+noTaxableSubTotal - +ivaTaxAmount - +fovialTaxAmount - +cotransTaxAmount) : (+taxableSubTotal - ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount) - +fovialTaxAmount - +cotransTaxAmount)).toFixed(2) || 0}`, align: "RIGHT", width: 0.23 }
+          { text: `${Number(quantity).toFixed(2) || 0}`, align: "LEFT", width: 0.17 },
+          { text: `${productName || ""}`, align: "LEFT", width: 0.40 },
+          { text: `${(+unitPrice - (+unitPriceFovial + +unitPriceCotrans + (isNoTaxableOperation ? +unitPriceIva : 0))).toFixed(2) || 0}`, align: "RIGHT", width: 0.20 },
+          { text: `${(isNoTaxableOperation === 1 ? (+noTaxableSubTotal - +ivaTaxAmount - +fovialTaxAmount - +cotransTaxAmount) : (+taxableSubTotal - ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount) - +fovialTaxAmount - +cotransTaxAmount)).toFixed(2) || 0}`, align: "RIGHT", width: 0.20 }
           // { text: `${"UNID"} x`, align: "LEFT", width: 0.25 },
           // { text: `${Number(quantity).toFixed(4) || 0} x ${(+unitPrice - (+unitPriceFovial + +unitPriceCotrans + (isNoTaxableOperation ? +unitPriceIva : 0))).toFixed(4) || 0}`, align: "RIGHT", width: 0.25 },
           // { text: `${(isNoTaxableOperation === 1 ? (+noTaxableSubTotal - +ivaTaxAmount - +fovialTaxAmount - +cotransTaxAmount) : (+taxableSubTotal - ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount) - +fovialTaxAmount - +cotransTaxAmount)).toFixed(4) || 0}`, align: "RIGHT", width: 0.20 }
@@ -1108,10 +1110,12 @@ controller.printDteVoucher = (req, res) => {
       } // LINE 15
       printer.style('U').tableCustom([
         // { text: `CANT.`, align: "LEFT", width: 0.15 },
-        { text: ``, align: "LEFT", width: 0.50 },
+        
+        { text: ``, align: "LEFT", width: 0.17 },
+        { text: ``, align: "LEFT", width: 0.40 },
         // { text: `PRES.`, align: "LEFT", width: 0.25 },
-        { text: ``, align: "RIGHT", width: 0.24 },
-        { text: ``, align: "RIGHT", width: 0.23 }
+        { text: ``, align: "RIGHT", width: 0.20 },
+        { text: ``, align: "RIGHT", width: 0.20 }
       ])
       .style('NORMAL')
       // .feed(1)
