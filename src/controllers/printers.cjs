@@ -28,7 +28,7 @@ controller.printDteVoucherIntoLocalServer = async (req, res) => {
   try {
     const { invoiceHeaderData, invoiceBodyData } = req.body;
 
-    let response = await axios.post('http://192.168.31.156:5005/api/printer/dtevoucher', { invoiceHeaderData, invoiceBodyData });
+    let response = await axios.post('http://192.168.0.8:5005/api/printer/dtevoucher', { invoiceHeaderData, invoiceBodyData });
 
    // await fetch('http://192.168.0.8:5005/api/printer/dtevoucher', req.body);
     // await fetch('http://192.168.0.8:5005/api/printer/dtevoucher', {
