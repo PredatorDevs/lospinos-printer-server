@@ -5,6 +5,7 @@ import { controller } from '../controllers/printers.cjs';
 
 const {
   printDteVoucherIntoLocalServer,
+  printUnsignedDteVoucherIntoLocalServer,
   printCCF,
   validatePrinterConnection,
   printTicketKitchen,
@@ -13,6 +14,7 @@ const {
   printCFTicket,
   printInternalSaleTicket,
   printDteVoucher,
+  printUnsignedDteVoucher,
   printCF,
   testPrinterConnection,
   testNetworkPrinterConnection,
@@ -34,7 +36,9 @@ router.post('/cf', printCF);
 router.post('/cfticket', printCFTicket);
 router.post('/internalsaleticket', printInternalSaleTicket);
 router.post('/dtevoucher', printDteVoucher);
+router.post('/unsigneddtevoucher', printUnsignedDteVoucher);
 router.post('/dtevoucher-into-local-server', printDteVoucherIntoLocalServer);
+router.post('/unsigneddtevoucher-into-local-server', printUnsignedDteVoucherIntoLocalServer);
 router.post('/printTicketKitchen', printTicketKitchen);
 router.post('/printTicketPreAccount', printTicketPreAccount);
 router.post('/printPackOff', printPackOff);
