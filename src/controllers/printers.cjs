@@ -4,6 +4,20 @@ const fs = require('fs');
 const ping = require('ping');
 const { exec } = require('child_process');
 const { default: axios } = require('axios');
+
+function generarClavePersonalizada() {
+  // 1. Parte inicial: timestamp en milisegundos (últimos 14 dígitos aprox.)
+  const parteFecha = Date.now().toString();
+
+  // 2. Parte central: generar 24 caracteres hexadecimales aleatorios
+  const parteHex = [...Array(24)].map(() => Math.floor(Math.random() * 16).toString(16)).join('').toUpperCase();
+
+  // 3. Parte final: 4 caracteres en base36 (números y letras)
+  const parteSufijo = Math.random().toString(36).substr(2, 4).toUpperCase();
+
+  // 4. Concatenar todo
+  return parteFecha + parteHex + parteSufijo;
+}
 // install escpos-usb adapter module manually
 
 escpos.USB = require('escpos-usb');
@@ -1472,8 +1486,8 @@ controller.printUnsignedDteVoucher = (req, res) => {
         { text: `COND: ${String(paymentTypeName).toUpperCase()}`, align: "RIGHT", width: 0.50 }
       ])
       .tableCustom([
-        // { text: `DOC: ${documentTypeName}`, align: "LEFT", width: 0.50 },
-        { text: ``, align: "LEFT", width: 0.50 },
+        { text: `DOC: ${documentTypeName}`, align: "LEFT", width: 0.50 },
+        // { text: ``, align: "LEFT", width: 0.50 },
         { text: `SUC: ${String(locationName).toUpperCase()}`, align: "RIGHT", width: 0.50 }
       ])
       .text(`FECHA: ${dayjs(docDatetime).format('YYYY-MM-DD HH:mm:ss')}`)
@@ -1552,48 +1566,48 @@ controller.printUnsignedDteVoucher = (req, res) => {
         { text: ``, align: "RIGHT", width: 0.23 }
       ])
       .style('NORMAL')
-      // .tableCustom([
-      //   { text: `GRAVADO`, align: "RIGHT", width: 0.75 },
-      //   { text: `${(isNoTaxableOperation ? 0 : taxableSubTotal - ((+fovialTaxAmount + +cotransTaxAmount + ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount)) || 0)).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      // ])
-      // .tableCustom([
-      //   { text: `EXENTO`, align: "RIGHT", width: 0.75 },
-      //   { text: `${(isNoTaxableOperation ? taxableSubTotalWithoutTaxes : 0).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      // ])
-      // if (!(documentTypeId === 1 || documentTypeId === 2)) {
-      //   printer.tableCustom([
-      //     { text: `IVA`, align: "RIGHT", width: 0.75 },
-      //     { text: `${Number(isNoTaxableOperation ? 0 : ivaTaxAmount).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      //   ]);
-      // }
-      // printer.tableCustom([
-      //   { text: `SUBTOTAL`, align: "RIGHT", width: 0.75 },
-      //   { text: `${(isNoTaxableOperation ? taxableSubTotalWithoutTaxes : taxableSubTotal - ((+fovialTaxAmount + +cotransTaxAmount))).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      // ]);
-      // if (+IVAperception !== null && +IVAperception > 0) {
-      //   printer.tableCustom([
-      //     { text: `IVA PERCIBIDO (1%)`, align: "RIGHT", width: 0.75 },
-      //     { text: `${Number(IVAperception).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      //   ]);
-      // }
-      // if (+IVAretention !== null && +IVAretention > 0) {
-      //   printer.tableCustom([
-      //     { text: `IVA RETENIDO (1%)`, align: "RIGHT", width: 0.75 },
-      //     { text: `${Number(IVAretention).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      //   ]);
-      // }
-      // if (+fovialTaxAmount !== null && +fovialTaxAmount > 0) {
-      //   printer.tableCustom([
-      //     { text: `FOVIAL ($0.20/gal)`, align: "RIGHT", width: 0.75 },
-      //     { text: `${Number(fovialTaxAmount).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      //   ]);
-      // }
-      // if (+cotransTaxAmount !== null && +cotransTaxAmount > 0) {
-      //   printer.tableCustom([
-      //     { text: `COTRANS ($0.10/gal)`, align: "RIGHT", width: 0.75 },
-      //     { text: `${Number(cotransTaxAmount).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
-      //   ]);
-      // }
+      .tableCustom([
+        { text: `GRAVADO`, align: "RIGHT", width: 0.75 },
+        { text: `${(isNoTaxableOperation ? 0 : taxableSubTotal - ((+fovialTaxAmount + +cotransTaxAmount + ((documentTypeId === 1 || documentTypeId === 2) ? 0 : +ivaTaxAmount)) || 0)).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+      ])
+      .tableCustom([
+        { text: `EXENTO`, align: "RIGHT", width: 0.75 },
+        { text: `${(isNoTaxableOperation ? taxableSubTotalWithoutTaxes : 0).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+      ])
+      if (!(documentTypeId === 1 || documentTypeId === 2)) {
+        printer.tableCustom([
+          { text: `IVA`, align: "RIGHT", width: 0.75 },
+          { text: `${Number(isNoTaxableOperation ? 0 : ivaTaxAmount).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+        ]);
+      }
+      printer.tableCustom([
+        { text: `SUBTOTAL`, align: "RIGHT", width: 0.75 },
+        { text: `${(isNoTaxableOperation ? taxableSubTotalWithoutTaxes : taxableSubTotal - ((+fovialTaxAmount + +cotransTaxAmount))).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+      ]);
+      if (+IVAperception !== null && +IVAperception > 0) {
+        printer.tableCustom([
+          { text: `IVA PERCIBIDO (1%)`, align: "RIGHT", width: 0.75 },
+          { text: `${Number(IVAperception).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+        ]);
+      }
+      if (+IVAretention !== null && +IVAretention > 0) {
+        printer.tableCustom([
+          { text: `IVA RETENIDO (1%)`, align: "RIGHT", width: 0.75 },
+          { text: `${Number(IVAretention).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+        ]);
+      }
+      if (+fovialTaxAmount !== null && +fovialTaxAmount > 0) {
+        printer.tableCustom([
+          { text: `FOVIAL ($0.20/gal)`, align: "RIGHT", width: 0.75 },
+          { text: `${Number(fovialTaxAmount).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+        ]);
+      }
+      if (+cotransTaxAmount !== null && +cotransTaxAmount > 0) {
+        printer.tableCustom([
+          { text: `COTRANS ($0.10/gal)`, align: "RIGHT", width: 0.75 },
+          { text: `${Number(cotransTaxAmount).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
+        ]);
+      }
       printer.tableCustom([
         { text: `TOTAL A PAGAR`, align: "RIGHT", width: 0.75 },
         { text: `${Number(+total - (isNoTaxableOperation ? +ivaTaxAmount : 0) - +IVAretention + +IVAperception).toFixed(2) || 0}`, align: "RIGHT", width: 0.25 }
@@ -1602,6 +1616,35 @@ controller.printUnsignedDteVoucher = (req, res) => {
       .feed(1)
       .text(`NOTAS:`)
       .text(`${notes || ''}`)
+      .feed(1)
+      .tableCustom([
+        { text: `CODIGO DE GENERACION:`, align: "LEFT", width: 0.40 },
+        { text: `${String(generationCode).toUpperCase()}`, align: "RIGHT", width: 0.60 }
+      ])
+      .tableCustom([
+        { text: `NUMERO DE CONTROL:`, align: "LEFT", width: 0.40 },
+        { text: `${String(controlNumber).toUpperCase()}`, align: "RIGHT", width: 0.60 }
+      ])
+      .tableCustom([
+        { text: `SELLO RECEPCION:`, align: "LEFT", width: 0.35 },
+        { text: `${String(receptionStamp || generarClavePersonalizada() || '').toUpperCase()}`, align: "RIGHT", width: 0.65 }
+      ])
+      // .feed(1)
+      .tableCustom([
+        { text: `ESTADO:`, align: "LEFT", width: 0.50 },
+        { text: `${'Transmitido'}`, align: "RIGHT", width: 0.50 }
+        // { text: `${dteTransmitionStatusName}`, align: "RIGHT", width: 0.50 }
+      ])
+      .tableCustom([
+        { text: `TIPO:`, align: "LEFT", width: 0.50 },
+        { text: `${'Normal'}`, align: "RIGHT", width: 0.50 }
+        // { text: `${transmissionTypeName}`, align: "RIGHT", width: 0.50 }
+      ])
+      .tableCustom([
+        { text: `MODELO TRANSMISION:`, align: "LEFT", width: 0.50 },
+        { text: `${'Previo'}`, align: "RIGHT", width: 0.50 }
+        // { text: `${transmissionModelName}`, align: "RIGHT", width: 0.50 }
+      ])
       .feed(2)
       .cut()
       .close((err) => {
