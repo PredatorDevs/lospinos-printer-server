@@ -1637,7 +1637,7 @@ controller.printUnsignedDteVoucher = (req, res) => {
       ])
       .tableCustom([
         { text: `TIPO:`, align: "LEFT", width: 0.50 },
-        { text: `${'Normal'}`, align: "RIGHT", width: 0.50 }
+        { text: `${'Transmisión Normal'}`, align: "RIGHT", width: 0.50 }
         // { text: `${transmissionTypeName}`, align: "RIGHT", width: 0.50 }
       ])
       .tableCustom([
