@@ -1645,6 +1645,9 @@ controller.printUnsignedDteVoucher = (req, res) => {
         { text: `${'Previo'}`, align: "RIGHT", width: 0.50 }
         // { text: `${transmissionModelName}`, align: "RIGHT", width: 0.50 }
       ])
+      .align('CT')
+      .control('FF')
+      .text('*** ESTE COMPROBANTE NO TIENE EFECTO FISCAL ***')
       .feed(2)
       .cut()
       .close((err) => {
